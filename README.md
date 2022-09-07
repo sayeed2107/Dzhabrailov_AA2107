@@ -1,4 +1,5 @@
 # Dzhabrailov_AA2107
-Studing C++
+
+Studying C++
 
 ## First project
