@@ -5,9 +5,10 @@ using namespace std;
 int main()
 {
     int x;
-    cout << "Hello World!!!!!!!";
+    cout << "Hello World!" << endl
+         << "Введите значение переменной X - ";
     cin >> x;
-    cout << x;
+    cout << "Значение квадрата переменной X равно " << x * x;
 
     return 0;
 }
