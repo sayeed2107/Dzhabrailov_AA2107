@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <string>
 
 using namespace std;
 
@@ -21,10 +22,21 @@ struct CS
 Pipe CreateNewPipe()
 {
     Pipe p;
-    cout << "Enter pipe lenght: ";
-    cin >> p.length;
-    cout << "Enter pipe diameter: ";
-    cin >> p.diameter;
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Enter pipe lenght: ";
+        cin >> p.length;
+    } while (cin.fail() || p.length == 0);
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Enter pipe diameter: ";
+        cin >> p.diameter;
+    } while (cin.fail() || p.diameter == 0);
+
     cout << "Enter pipe status(Is it working or not, enter '1' or '0'): ";
     cin >> p.status;
 
@@ -33,6 +45,7 @@ Pipe CreateNewPipe()
 
 void PrintPipe(const Pipe &p)
 {
+    cout << "Pipe #1" << endl;
     cout << "Lenght:" << p.length << "\tDiameter:" << p.diameter << "\tStatus:" << p.status << endl;
 }
 
@@ -40,39 +53,95 @@ CS CreateNewCS()
 {
     CS new_station;
     cout << "Enter CS name: ";
-    cin >> new_station.name;
-    cout << "Enter the amount of workshops in CS: ";
-    cin >> new_station.workshops;
-    cout << "Enter the amount of active workshops in CS: ";
-    cin >> new_station.active_workshops;
+    cin.clear();
+    cin.ignore(256, '\n');
+    getline(cin, new_station.name);
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Enter the amount of workshops in CS: ";
+        cin >> new_station.workshops;
+    } while (cin.fail());
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Enter the amount of active workshops in CS: ";
+        cin >> new_station.active_workshops;
+    } while (new_station.active_workshops > new_station.workshops);
     new_station.efficiency = (float)new_station.active_workshops / new_station.workshops * 100;
     return new_station;
 }
 
 void PrintCS(const CS &s)
 {
+    cout << "Comressor station #1" << endl;
     cout << "Name:" << s.name << "\tWorkshops:" << s.workshops << "\tActive workshops:" << s.active_workshops << "\tEfficiency:" << round(s.efficiency) << "%\n";
 }
 
 void PrintMenu()
 {
-    cout << "1. Add new pipe" << endl;
-    cout << "2. Add new CS" << endl;
-    cout << "3. View all objects" << endl;
-    cout << "4. Edit pipe" << endl;
-    cout << "5. Edit CS" << endl;
-    cout << "6. Save to the file" << endl;
-    cout << "7. Load from the file" << endl;
-    cout << "0. Exit" << endl;
+    cout << "1. Add new pipe" << endl
+         << "2. Add new CS" << endl
+         << "3. View all objects" << endl
+         << "4. Edit pipe" << endl
+         << "5. Edit CS" << endl
+         << "6. Save to the file" << endl
+         << "7. Load from the file" << endl
+         << "0. Exit" << endl
+         << "Choose action: ";
 }
 
 int main()
 {
-    Pipe TestPipe;
-    CS TestCS;
-    TestPipe = CreateNewPipe();
-    PrintPipe(TestPipe);
-    TestCS = CreateNewCS();
-    PrintCS(TestCS);
+    Pipe p;
+    p.length = 0;
+    CS station;
+    while (1)
+    {
+        cout << "\n";
+        PrintMenu();
+        int i;
+        cin >> i;
+        cout << "\n";
+        switch (i)
+        {
+        case 1:
+        {
+            p = CreateNewPipe();
+            break;
+        }
+        case 2:
+        {
+            station = CreateNewCS();
+            break;
+        }
+        case 3:
+        {
+            if (p.length != 0)
+            {
+                PrintPipe(p);
+            }
+            if (station.workshops != 0 && p.length != 0)
+            {
+                cout << "\n";
+            }
+            if (station.workshops != 0)
+            {
+                PrintCS(station);
+            }
+            break;
+        }
+        case 0:
+        {
+            return 0;
+        }
+        default:
+        {
+            cout << "Wrong action";
+        }
+        }
+    }
     return 0;
 }
