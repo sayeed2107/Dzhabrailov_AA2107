@@ -80,6 +80,35 @@ void PrintCS(const CS &s)
     cout << "Name:" << s.name << "\tWorkshops:" << s.workshops << "\tActive workshops:" << s.active_workshops << "\tEfficiency:" << round(s.efficiency) << "%\n";
 }
 
+void ViewObjects(const Pipe &p, const CS &station)
+{
+    if (p.length != 0)
+    {
+        PrintPipe(p);
+    }
+    if (station.workshops != 0 && p.length != 0)
+    {
+        cout << "\n";
+    }
+    if (station.workshops != 0)
+    {
+        PrintCS(station);
+    }
+    if (p.length == 0 && station.workshops == 0)
+    {
+        cout << "Nothing to view, please create new objects. " << endl;
+    }
+}
+
+Pipe EditPipe(Pipe &p)
+{
+    if (p.length == 0)
+    {
+        cout << "There are no pipes, pleaese create a new pipe." << endl;
+        return p;
+    }
+}
+
 void PrintMenu()
 {
     cout << "1. Add new pipe" << endl
@@ -119,18 +148,12 @@ int main()
         }
         case 3:
         {
-            if (p.length != 0)
-            {
-                PrintPipe(p);
-            }
-            if (station.workshops != 0 && p.length != 0)
-            {
-                cout << "\n";
-            }
-            if (station.workshops != 0)
-            {
-                PrintCS(station);
-            }
+            ViewObjects(p, station);
+            break;
+        }
+        case 4:
+        {
+            EditPipe(p);
             break;
         }
         case 0:
