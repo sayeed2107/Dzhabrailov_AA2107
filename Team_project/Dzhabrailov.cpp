@@ -72,19 +72,3 @@ vector<int> Ferma(int n)
 
     return data;
 }
-
-int main()
-{
-    vector<int> data;
-    int n;
-    cout << "Enter the number: ";
-    cin >> n;
-    data = Ferma(n);
-    cout << "Fermat's factorization method: ";
-    for (int i = 0; i < data.size(); ++i)
-    {
-        cout << data[i] << "\t";
-    }
-
-    return 0;
-}
