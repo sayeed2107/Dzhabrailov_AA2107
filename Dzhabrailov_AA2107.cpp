@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -37,8 +38,13 @@ Pipe CreateNewPipe()
         cin >> p.diameter;
     } while (cin.fail() || p.diameter == 0);
 
-    cout << "Enter pipe status(Is it working or not, enter '1' or '0'): ";
-    cin >> p.status;
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Enter pipe status(Is it working or not, enter '1' or '0'): ";
+        cin >> p.status;
+    } while (cin.fail());
 
     return p;
 }
@@ -69,7 +75,7 @@ CS CreateNewCS()
         cin.ignore(256, '\n');
         cout << "Enter the amount of active workshops in CS: ";
         cin >> new_station.active_workshops;
-    } while (new_station.active_workshops > new_station.workshops);
+    } while (cin.fail() || new_station.active_workshops > new_station.workshops);
     new_station.efficiency = (float)new_station.active_workshops / new_station.workshops * 100;
     return new_station;
 }
@@ -107,6 +113,82 @@ Pipe EditPipe(Pipe &p)
         cout << "There are no pipes, pleaese create a new pipe." << endl;
         return p;
     }
+
+    bool old_status = p.status;
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Pleaese, enter new status for the pipe (Is it working or not, enter '1' or '0'): ";
+        cin >> p.status;
+    } while (cin.fail());
+    if (old_status == p.status)
+    {
+        cout << "Nothing was changed" << endl;
+    }
+    else
+    {
+        cout << "Changes were applied!" << endl;
+    }
+
+    return p;
+}
+
+CS EditCS(CS &station)
+{
+    if (station.workshops == 0)
+    {
+        cout << "There are no CS, pleaese create a new CS." << endl;
+        return station;
+    }
+
+    int old_active_workshops = station.active_workshops;
+
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Please, enter new amount of active workshops: " << endl;
+        cin >> station.active_workshops;
+    } while (cin.fail() || station.active_workshops > station.workshops);
+    if (old_active_workshops == station.active_workshops)
+    {
+        cout << "Nothing was changed" << endl;
+    }
+    else
+    {
+        station.efficiency = (float)station.active_workshops / station.workshops * 100;
+        cout << "Changes were applied!" << endl;
+    }
+
+    return station;
+}
+
+int SaveFile(const Pipe &p, const CS &s)
+{
+    if (p.length == 0 && s.workshops == 0)
+    {
+        cout << "Nothing to save, please create new objects. " << endl;
+        return 0;
+    }
+    ofstream fout;
+    fout.open("data.txt", ios::out);
+    if (p.length != 0)
+    {
+        fout << "Pipe #1" << endl;
+        fout << "Lenght:" << p.length << "\tDiameter:" << p.diameter << "\tStatus:" << p.status << endl;
+    }
+    if (s.workshops != 0 && p.length != 0)
+    {
+        fout << "\n";
+    }
+    if (s.workshops != 0)
+    {
+        fout << "Comressor station #1" << endl;
+        fout << "Name:" << s.name << "\tWorkshops:" << s.workshops << "\tActive workshops:" << s.active_workshops << "\tEfficiency:" << round(s.efficiency) << "%\n";
+    }
+    fout.close();
+    return 0;
 }
 
 void PrintMenu()
@@ -154,6 +236,16 @@ int main()
         case 4:
         {
             EditPipe(p);
+            break;
+        }
+        case 5:
+        {
+            EditCS(station);
+            break;
+        }
+        case 6:
+        {
+            SaveFile(p, station);
             break;
         }
         case 0:
