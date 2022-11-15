@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include <vector>
 
 using namespace std;
@@ -23,7 +24,7 @@ vector<int> Ferma(int n)
     do
     {
         k++;
-        y = (s + float(k)) * (s + float(k)) - float(n);
+        y = pow((s + float(k)), 2) - float(n);
 
     } while ((int)sqrt(y) != sqrt(y));
     int x = k + s;
