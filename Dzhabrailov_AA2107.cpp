@@ -20,24 +20,20 @@ struct CS
     float efficiency;
 };
 
-Pipe CreateNewPipe()
+int GetCorrectNumber(int min, int max)
 {
-    Pipe p;
-    do
+    int i;
+    while ((cin >> i).fail() || i < min || i > max)
     {
         cin.clear();
-        cin.ignore(256, '\n');
-        cout << "Enter pipe lenght: ";
-        cin >> p.length;
-    } while (cin.fail() || p.length == 0);
-    do
-    {
-        cin.clear();
-        cin.ignore(256, '\n');
-        cout << "Enter pipe diameter: ";
-        cin >> p.diameter;
-    } while (cin.fail() || p.diameter == 0);
+        cin.ignore(10000, '\n');
+        cout << "Choose action(0-7): ";
+    }
+    return i;
+}
 
+void GetCorrectStatus(Pipe &p)
+{
     do
     {
         cin.clear();
@@ -45,62 +41,88 @@ Pipe CreateNewPipe()
         cout << "Enter pipe status(Is it working or not, enter '1' or '0'): ";
         cin >> p.status;
     } while (cin.fail());
-
-    return p;
 }
 
-void PrintPipe(const Pipe &p)
+void GetCorrectActWorkshops(CS &st)
 {
-    cout << "Pipe #1" << endl;
-    cout << "Lenght:" << p.length << "\tDiameter:" << p.diameter << "\tStatus:" << p.status << endl;
-}
-
-CS CreateNewCS()
-{
-    CS new_station;
-    cout << "Enter CS name: ";
-    cin.clear();
-    cin.ignore(256, '\n');
-    getline(cin, new_station.name);
-    do
-    {
-        cin.clear();
-        cin.ignore(256, '\n');
-        cout << "Enter the amount of workshops in CS: ";
-        cin >> new_station.workshops;
-    } while (cin.fail());
     do
     {
         cin.clear();
         cin.ignore(256, '\n');
         cout << "Enter the amount of active workshops in CS: ";
-        cin >> new_station.active_workshops;
-    } while (cin.fail() || new_station.active_workshops > new_station.workshops);
-    new_station.efficiency = (float)new_station.active_workshops / new_station.workshops * 100;
-    return new_station;
+        cin >> st.active_workshops;
+    } while (cin.fail() || st.active_workshops > st.workshops || st.active_workshops < 0);
 }
 
-void PrintCS(const CS &s)
+istream &operator>>(istream &in, Pipe &p)
 {
-    cout << "Comressor station #1" << endl;
-    cout << "Name:" << s.name << "\tWorkshops:" << s.workshops << "\tActive workshops:" << s.active_workshops << "\tEfficiency:" << round(s.efficiency) << "%\n";
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Enter pipe length: ";
+        cin >> p.length;
+    } while (cin.fail() || p.length <= 0);
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Enter pipe diameter: ";
+        cin >> p.diameter;
+    } while (cin.fail() || p.diameter <= 0);
+
+    GetCorrectStatus(p);
+
+    return in;
 }
 
-void ViewObjects(const Pipe &p, const CS &station)
+istream &operator>>(istream &in, CS &st)
+{
+    cout << "Enter CS name: ";
+    cin.clear();
+    cin.ignore(256, '\n');
+    getline(cin, st.name);
+    do
+    {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Enter the amount of workshops in CS: ";
+        cin >> st.workshops;
+    } while (cin.fail() || st.workshops <= 0);
+    GetCorrectActWorkshops(st);
+    st.efficiency = (float)st.active_workshops / st.workshops * 100;
+    return in;
+}
+
+ostream &operator<<(ostream &out, const Pipe &p)
+{
+    out << "Pipe #1" << endl;
+    out << "Length:" << p.length << "\tDiameter:" << p.diameter << "\tStatus:" << p.status << endl;
+    return out;
+}
+
+ostream &operator<<(ostream &out, const CS &st)
+{
+    out << "Compressor station #1" << endl;
+    out << "Name:" << st.name << "\tWorkshops:" << st.workshops << "\tActive workshops:" << st.active_workshops << "\tEfficiency:" << round(st.efficiency) << "%\n";
+    return out;
+}
+
+void ViewObjects(const Pipe &p, const CS &st)
 {
     if (p.length != 0)
     {
-        PrintPipe(p);
+        cout << p;
     }
-    if (station.workshops != 0 && p.length != 0)
+    if (st.workshops != 0 && p.length != 0)
     {
         cout << "\n";
     }
-    if (station.workshops != 0)
+    if (st.workshops != 0)
     {
-        PrintCS(station);
+        cout << st;
     }
-    if (p.length == 0 && station.workshops == 0)
+    if (p.length == 0 && st.workshops == 0)
     {
         cout << "Nothing to view, please create new objects. " << endl;
     }
@@ -115,13 +137,7 @@ Pipe EditPipe(Pipe &p)
     }
 
     bool old_status = p.status;
-    do
-    {
-        cin.clear();
-        cin.ignore(256, '\n');
-        cout << "Pleaese, enter new status for the pipe (Is it working or not, enter '1' or '0'): ";
-        cin >> p.status;
-    } while (cin.fail());
+    GetCorrectStatus(p);
     if (old_status == p.status)
     {
         cout << "Nothing was changed" << endl;
@@ -144,13 +160,7 @@ CS EditCS(CS &station)
 
     int old_active_workshops = station.active_workshops;
 
-    do
-    {
-        cin.clear();
-        cin.ignore(256, '\n');
-        cout << "Please, enter new amount of active workshops: " << endl;
-        cin >> station.active_workshops;
-    } while (cin.fail() || station.active_workshops > station.workshops);
+    GetCorrectActWorkshops(station);
     if (old_active_workshops == station.active_workshops)
     {
         cout << "Nothing was changed" << endl;
@@ -175,8 +185,7 @@ int SaveFile(const Pipe &p, const CS &s)
     fout.open("DataForHuman.txt", ios::out);
     if (p.length != 0)
     {
-        fout << "Pipe #1" << endl;
-        fout << "Lenght:" << p.length << "\tDiameter:" << p.diameter << "\tStatus:" << p.status << endl;
+        fout << p << endl;
     }
     if (s.workshops != 0 && p.length != 0)
     {
@@ -184,8 +193,7 @@ int SaveFile(const Pipe &p, const CS &s)
     }
     if (s.workshops != 0)
     {
-        fout << "Comressor station #1" << endl;
-        fout << "Name:" << s.name << "\tWorkshops:" << s.workshops << "\tActive workshops:" << s.active_workshops << "\tEfficiency:" << round(s.efficiency) << "%\n";
+        fout << s << endl;
     }
     fout.close();
 
@@ -281,29 +289,26 @@ int main()
 {
     Pipe p;
     p.length = 0;
-    CS station;
+    CS st;
     while (1)
     {
         cout << "\n";
         PrintMenu();
-        int i;
-        cin >> i;
-        cout << "\n";
-        switch (i)
+        switch (GetCorrectNumber(0, 7))
         {
         case 1:
         {
-            p = CreateNewPipe();
+            cin >> p;
             break;
         }
         case 2:
         {
-            station = CreateNewCS();
+            cin >> st;
             break;
         }
         case 3:
         {
-            ViewObjects(p, station);
+            ViewObjects(p, st);
             break;
         }
         case 4:
@@ -313,18 +318,18 @@ int main()
         }
         case 5:
         {
-            EditCS(station);
+            EditCS(st);
             break;
         }
         case 6:
         {
-            SaveFile(p, station);
+            SaveFile(p, st);
             break;
         }
         case 7:
         {
             p = LoadPipe();
-            station = LoadCS();
+            st = LoadCS();
             break;
         }
         case 0:

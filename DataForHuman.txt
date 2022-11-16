@@ -1,5 +1,7 @@
 Pipe #1
-Lenght:56	Diameter:5	Status:0
+Length:45	Diameter:56	Status:1
 
-Comressor station #1
-Name:cool test	Workshops:50	Active workshops:25	Efficiency:50%
+
+Compressor station #1
+Name:test	Workshops:50	Active workshops:25	Efficiency:50%
+
