@@ -172,7 +172,7 @@ int SaveFile(const Pipe &p, const CS &s)
         return 0;
     }
     ofstream fout;
-    fout.open("data.txt", ios::out);
+    fout.open("DataForHuman.txt", ios::out);
     if (p.length != 0)
     {
         fout << "Pipe #1" << endl;
@@ -188,7 +188,80 @@ int SaveFile(const Pipe &p, const CS &s)
         fout << "Name:" << s.name << "\tWorkshops:" << s.workshops << "\tActive workshops:" << s.active_workshops << "\tEfficiency:" << round(s.efficiency) << "%\n";
     }
     fout.close();
+
+    fout.open("DataForProgramm.txt", ios::out);
+    if (s.workshops != 0 && p.length != 0)
+    {
+        fout << p.length << endl
+             << p.diameter << endl
+             << p.status << endl;
+        fout << s.name << endl
+             << s.workshops << endl
+             << s.active_workshops << endl
+             << round(s.efficiency);
+    }
+    if (p.length != 0 && s.workshops == 0)
+    {
+        fout << p.length << endl
+             << p.diameter << endl
+             << p.status << endl;
+    }
+    if (s.workshops != 0 && p.length == 0)
+    {
+        fout << endl
+             << endl
+             << endl;
+        fout << s.name << endl
+             << s.workshops << endl
+             << s.active_workshops << endl
+             << round(s.efficiency);
+    }
+
+    fout.close();
+    cout << "File was succefully saved!" << endl;
     return 0;
+}
+
+Pipe LoadPipe()
+{
+    Pipe p;
+    ifstream check("DataForProgramm.txt");
+    if (check.bad() == true)
+    {
+        cout << "No existing file to load, please create a new file" << endl;
+        return p;
+    }
+
+    ifstream fin;
+    fin.open("DataForProgramm.txt", ios::in);
+    fin >> p.length;
+    fin >> p.diameter;
+    fin >> p.status;
+    fin.close();
+    return p;
+}
+
+CS LoadCS()
+{
+    CS s;
+    ifstream check("DataForProgramm.txt");
+    if (check.bad() == true)
+    {
+        cout << "No existing file to load, please create a new file" << endl;
+        return s;
+    }
+
+    ifstream fin;
+    fin.open("DataForProgramm.txt", ios::in);
+    fin.ignore(256, '\n');
+    fin.ignore(256, '\n');
+    fin.ignore(256, '\n');
+    fin >> s.name;
+    fin >> s.workshops;
+    fin >> s.active_workshops;
+    fin >> s.efficiency;
+    fin.close();
+    return s;
 }
 
 void PrintMenu()
@@ -246,6 +319,12 @@ int main()
         case 6:
         {
             SaveFile(p, station);
+            break;
+        }
+        case 7:
+        {
+            p = LoadPipe();
+            station = LoadCS();
             break;
         }
         case 0:

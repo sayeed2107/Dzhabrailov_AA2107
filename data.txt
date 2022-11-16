@@ -1,5 +1,0 @@
-Pipe #1
-Lenght:456	Diameter:12	Status:1
-
-Comressor station #1
-Name:bruh	Workshops:14	Active workshops:7	Efficiency:50%

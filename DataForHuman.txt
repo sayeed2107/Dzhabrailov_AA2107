@@ -1,0 +1,5 @@
+Pipe #1
+Lenght:56	Diameter:5	Status:0
+
+Comressor station #1
+Name:cool test	Workshops:50	Active workshops:25	Efficiency:50%
