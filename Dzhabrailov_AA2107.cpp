@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 #include <fstream>
+#include <map>
 
 using namespace std;
 
@@ -52,6 +53,66 @@ void GetCorrectActWorkshops(CS &st)
         cout << "Enter the amount of active workshops in CS: ";
         cin >> st.active_workshops;
     } while (cin.fail() || st.active_workshops > st.workshops || st.active_workshops < 0);
+}
+
+void AddToPipeMap(Pipe &p, map<int, Pipe> &PipeMap)
+{
+    if (PipeMap.find(1) != PipeMap.end())
+    {
+        int j = PipeMap.rbegin()->first;
+        PipeMap.insert(make_pair(j + 1, p));
+    }
+    else
+    {
+        int j = 1;
+        PipeMap.insert(make_pair(j, p));
+    }
+}
+
+void ShowPipeMap(map<int, Pipe> &PipeMap)
+{
+
+    if (PipeMap.find(1) != PipeMap.end())
+    {
+        int max = PipeMap.rbegin()->first;
+        for (int i = 1; i <= max; ++i)
+        {
+            Pipe p = PipeMap[i];
+            cout << "Pipe #" << i << endl;
+            cout << "Length:" << p.length << "\tDiameter:" << p.diameter << "\tStatus:" << p.status << endl;
+        }
+    }
+    else
+    {
+        cout << "Nothing to view, please create new objects. " << endl;
+    }
+}
+
+void EditPipeMap(map<int, Pipe> &PipeMap)
+{
+    int i;
+    cout << "Enter name of the tube to change: ";
+    cin >> i;
+    Pipe p = PipeMap[i];
+
+    if (p.length == 0)
+    {
+        cout << "There are no pipes, pleaese create a new pipe." << endl;
+        return;
+    }
+
+    bool old_status = p.status;
+    GetCorrectStatus(p);
+    if (old_status == p.status)
+    {
+        cout << "Nothing was changed" << endl;
+    }
+    else
+    {
+        cout << "Changes were applied!" << endl;
+    }
+
+    PipeMap[i] = p;
 }
 
 istream &operator>>(istream &in, Pipe &p)
@@ -128,12 +189,12 @@ void ViewObjects(const Pipe &p, const CS &st)
     }
 }
 
-Pipe EditPipe(Pipe &p)
+void EditPipe(Pipe &p)
 {
     if (p.length == 0)
     {
         cout << "There are no pipes, pleaese create a new pipe." << endl;
-        return p;
+        return;
     }
 
     bool old_status = p.status;
@@ -146,8 +207,6 @@ Pipe EditPipe(Pipe &p)
     {
         cout << "Changes were applied!" << endl;
     }
-
-    return p;
 }
 
 CS EditCS(CS &station)
@@ -287,9 +346,10 @@ void PrintMenu()
 
 int main()
 {
-    Pipe p;
-    p.length = 0;
-    CS st;
+    Pipe p = {};
+    CS st = {};
+    map<int, Pipe> PipeMap;
+
     while (1)
     {
         cout << "\n";
@@ -299,6 +359,7 @@ int main()
         case 1:
         {
             cin >> p;
+            AddToPipeMap(p, PipeMap);
             break;
         }
         case 2:
@@ -308,12 +369,12 @@ int main()
         }
         case 3:
         {
-            ViewObjects(p, st);
+            ShowPipeMap(PipeMap);
             break;
         }
         case 4:
         {
-            EditPipe(p);
+            EditPipeMap(PipeMap);
             break;
         }
         case 5:
