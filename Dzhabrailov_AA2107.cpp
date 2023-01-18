@@ -69,23 +69,19 @@ void AddToPipeMap(Pipe &p, map<int, Pipe> &PipeMap)
     }
 }
 
-void ShowPipeMap(map<int, Pipe> &PipeMap)
+int AddToCsMap(CS &st, map<string, CS> &CSMap)
 {
-
-    if (PipeMap.find(1) != PipeMap.end())
+    for (const auto &it : CSMap)
     {
-        int max = PipeMap.rbegin()->first;
-        for (int i = 1; i <= max; ++i)
+        if (st.name == it.first)
         {
-            Pipe p = PipeMap[i];
-            cout << "Pipe #" << i << endl;
-            cout << "Length:" << p.length << "\tDiameter:" << p.diameter << "\tStatus:" << p.status << endl;
+            cout << endl
+                 << "CS with such a name already exists" << endl;
+            return 0;
         }
     }
-    else
-    {
-        cout << "Nothing to view, please create new objects. " << endl;
-    }
+    CSMap.insert(make_pair(st.name, st));
+    return 0;
 }
 
 void EditPipeMap(map<int, Pipe> &PipeMap)
@@ -97,7 +93,7 @@ void EditPipeMap(map<int, Pipe> &PipeMap)
 
     if (p.length == 0)
     {
-        cout << "There are no pipes, pleaese create a new pipe." << endl;
+        cout << "There are no pipes with such a name, pleaese create a new pipe." << endl;
         return;
     }
 
@@ -113,6 +109,35 @@ void EditPipeMap(map<int, Pipe> &PipeMap)
     }
 
     PipeMap[i] = p;
+}
+
+void EditCSMap(map<string, CS> &CSMap)
+{
+    string name;
+    cout << "Enter name of the CS to change: ";
+    cin >> name;
+    CS st = CSMap[name];
+
+    if (st.workshops == 0)
+    {
+        cout << "There are no CS, pleaese create a new CS." << endl;
+        return;
+    }
+
+    int old_active_workshops = st.active_workshops;
+
+    GetCorrectActWorkshops(st);
+    if (old_active_workshops == st.active_workshops)
+    {
+        cout << "Nothing was changed" << endl;
+    }
+    else
+    {
+        st.efficiency = (float)st.active_workshops / st.workshops * 100;
+        cout << "Changes were applied!" << endl;
+    }
+
+    CSMap[name] = st;
 }
 
 istream &operator>>(istream &in, Pipe &p)
@@ -157,15 +182,38 @@ istream &operator>>(istream &in, CS &st)
 
 ostream &operator<<(ostream &out, const Pipe &p)
 {
-    out << "Pipe #1" << endl;
     out << "Length:" << p.length << "\tDiameter:" << p.diameter << "\tStatus:" << p.status << endl;
     return out;
 }
 
 ostream &operator<<(ostream &out, const CS &st)
 {
-    out << "Compressor station #1" << endl;
-    out << "Name:" << st.name << "\tWorkshops:" << st.workshops << "\tActive workshops:" << st.active_workshops << "\tEfficiency:" << round(st.efficiency) << "%\n";
+    out << "Compressor station #" << st.name << endl;
+    out << "Workshops:" << st.workshops << "\tActive workshops:" << st.active_workshops << "\tEfficiency:" << round(st.efficiency) << "%\n";
+    return out;
+}
+
+ostream &operator<<(ostream &out, const map<string, CS> &CSMap)
+{
+    for (const auto &it : CSMap)
+    {
+        out << it.second << endl;
+    }
+    return out;
+}
+
+ostream &operator<<(ostream &out, const map<int, Pipe> &PipeMap)
+{
+    if (PipeMap.find(1) != PipeMap.end())
+    {
+        int k = 1;
+        for (const auto &it : PipeMap)
+        {
+            out << "Pipe #" << k << endl;
+            out << it.second << endl;
+            k++;
+        }
+    }
     return out;
 }
 
@@ -186,26 +234,6 @@ void ViewObjects(const Pipe &p, const CS &st)
     if (p.length == 0 && st.workshops == 0)
     {
         cout << "Nothing to view, please create new objects. " << endl;
-    }
-}
-
-void EditPipe(Pipe &p)
-{
-    if (p.length == 0)
-    {
-        cout << "There are no pipes, pleaese create a new pipe." << endl;
-        return;
-    }
-
-    bool old_status = p.status;
-    GetCorrectStatus(p);
-    if (old_status == p.status)
-    {
-        cout << "Nothing was changed" << endl;
-    }
-    else
-    {
-        cout << "Changes were applied!" << endl;
     }
 }
 
@@ -349,6 +377,7 @@ int main()
     Pipe p = {};
     CS st = {};
     map<int, Pipe> PipeMap;
+    map<string, CS> CSMap;
 
     while (1)
     {
@@ -365,11 +394,13 @@ int main()
         case 2:
         {
             cin >> st;
+            AddToCsMap(st, CSMap);
             break;
         }
         case 3:
         {
-            ShowPipeMap(PipeMap);
+            cout << PipeMap;
+            cout << CSMap;
             break;
         }
         case 4:
@@ -379,7 +410,7 @@ int main()
         }
         case 5:
         {
-            EditCS(st);
+            EditCSMap(CSMap);
             break;
         }
         case 6:
