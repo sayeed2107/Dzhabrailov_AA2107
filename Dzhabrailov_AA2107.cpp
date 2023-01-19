@@ -318,102 +318,84 @@ void DeleteCS(map<string, CS> &CSMap)
     cout << "\nCS was successfully deleted!\n";
 }
 
-int SaveFile(const Pipe &p, const CS &s)
+void SaveFilem(const map<string, Pipe> &PipeMap, const map<string, CS> &CSMap)
 {
-    if (p.length == 0 && s.workshops == 0)
+    if (PipeMap.empty() == 1 && CSMap.empty() == 1)
     {
-        cout << "Nothing to save, please create new objects. " << endl;
-        return 0;
+        cout << "\nNothing to save, please create new objects.\n";
+        return;
     }
     ofstream fout;
     fout.open("DataForHuman.txt", ios::out);
-    if (p.length != 0)
-    {
-        fout << p << endl;
-    }
-    if (s.workshops != 0 && p.length != 0)
-    {
-        fout << "\n";
-    }
-    if (s.workshops != 0)
-    {
-        fout << s << endl;
-    }
+    fout << PipeMap;
+    fout << CSMap;
     fout.close();
 
     fout.open("DataForProgramm.txt", ios::out);
-    if (s.workshops != 0 && p.length != 0)
+    for (const auto &it : PipeMap)
     {
-        fout << p.length << endl
-             << p.diameter << endl
-             << p.status << endl;
-        fout << s.name << endl
-             << s.workshops << endl
-             << s.active_workshops << endl
-             << round(s.efficiency);
-    }
-    if (p.length != 0 && s.workshops == 0)
-    {
-        fout << p.length << endl
-             << p.diameter << endl
-             << p.status << endl;
-    }
-    if (s.workshops != 0 && p.length == 0)
-    {
-        fout << endl
-             << endl
-             << endl;
-        fout << s.name << endl
-             << s.workshops << endl
-             << s.active_workshops << endl
-             << round(s.efficiency);
+        fout << "#c#Pipe#c#\n";
+        fout << it.first << endl;
+        fout << it.second.length << endl;
+        fout << it.second.diameter << endl;
+        fout << it.second.status << endl;
     }
 
+    for (const auto &it : CSMap)
+    {
+        fout << "#c#Station#c#\n";
+        fout << it.first << endl;
+        fout << it.second.workshops << endl;
+        fout << it.second.active_workshops << endl;
+        fout << it.second.efficiency << endl;
+    }
     fout.close();
-    cout << "File was succefully saved!" << endl;
-    return 0;
+    return;
 }
 
-Pipe LoadPipe()
+void LoadFilem(map<string, Pipe> &PipeMap, map<string, CS> &CSMap)
 {
-    Pipe p;
-    ifstream check("DataForProgramm.txt");
-    if (check.bad() == true)
-    {
-        cout << "No existing file to load, please create a new file" << endl;
-        return p;
-    }
-
     ifstream fin;
-    fin.open("DataForProgramm.txt", ios::in);
-    fin >> p.length;
-    fin >> p.diameter;
-    fin >> p.status;
-    fin.close();
-    return p;
-}
+    fin.open("DataForProgramm.txt");
 
-CS LoadCS()
-{
-    CS s;
-    ifstream check("DataForProgramm.txt");
-    if (check.bad() == true)
+    if (!fin.is_open())
     {
-        cout << "No existing file to load, please create a new file" << endl;
-        return s;
+        cout << "\nFile open error\n";
     }
+    else
+    {
+        while (!fin.eof())
+        {
+            string str = "";
+            getline(fin, str);
 
-    ifstream fin;
-    fin.open("DataForProgramm.txt", ios::in);
-    fin.ignore(256, '\n');
-    fin.ignore(256, '\n');
-    fin.ignore(256, '\n');
-    fin >> s.name;
-    fin >> s.workshops;
-    fin >> s.active_workshops;
-    fin >> s.efficiency;
+            if (str == "#c#Pipe#c#")
+            {
+                Pipe p;
+                string name;
+
+                getline(fin, name);
+                fin >> p.length;
+                fin >> p.diameter;
+                fin >> p.status;
+
+                PipeMap.insert(make_pair(name, p));
+            }
+
+            if (str == "#c#Station#c#")
+            {
+                CS st;
+                getline(fin, st.name);
+                fin >> st.workshops;
+                fin >> st.active_workshops;
+                fin >> st.efficiency;
+
+                CSMap.insert(make_pair(st.name, st));
+            }
+        }
+    }
     fin.close();
-    return s;
+    return;
 }
 
 void PrintMenu()
@@ -485,13 +467,12 @@ int main()
         }
         case 8:
         {
-            SaveFile(p, st);
+            SaveFilem(PipeMap, CSMap);
             break;
         }
         case 9:
         {
-            p = LoadPipe();
-            st = LoadCS();
+            LoadFilem(PipeMap, CSMap);
             break;
         }
         case 0:
