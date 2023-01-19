@@ -5,6 +5,7 @@
     "vector": "cpp",
     "fstream": "cpp",
     "map": "cpp",
-    "iosfwd": "cpp"
+    "iosfwd": "cpp",
+    "istream": "cpp"
   }
 }

@@ -28,7 +28,7 @@ int GetCorrectNumber(int min, int max)
     {
         cin.clear();
         cin.ignore(10000, '\n');
-        cout << "Choose action(0-7): ";
+        cout << "Choose action(0-9): ";
     }
     return i;
 }
@@ -55,18 +55,37 @@ void GetCorrectActWorkshops(CS &st)
     } while (cin.fail() || st.active_workshops > st.workshops || st.active_workshops < 0);
 }
 
-void AddToPipeMap(Pipe &p, map<int, Pipe> &PipeMap)
+void GetCorrectObjectsView(const map<string, Pipe> &PipeMap, const map<string, CS> &CSMap)
 {
-    if (PipeMap.find(1) != PipeMap.end())
+    if (PipeMap.empty() == 1 && CSMap.empty() == 1)
     {
-        int j = PipeMap.rbegin()->first;
-        PipeMap.insert(make_pair(j + 1, p));
+        cout << endl
+             << "There are no objects to view" << endl;
     }
-    else
+}
+
+void AddToPipeMap(Pipe &p, map<string, Pipe> &PipeMap)
+{
+    string name;
+    cout << "Enter name of the tube: ";
+    cin.clear();
+    cin.ignore(256, '\n');
+    getline(cin, name);
+    for (const auto &it : PipeMap)
     {
-        int j = 1;
-        PipeMap.insert(make_pair(j, p));
+        if (name == it.first)
+        {
+            do
+            {
+                cin.clear();
+                cin.ignore(256, '\n');
+                cout << "Tube with such a name already exists, create different name: ";
+                getline(cin, name);
+            } while (name == it.first);
+        }
     }
+    PipeMap.insert(make_pair(name, p));
+    return;
 }
 
 int AddToCsMap(CS &st, map<string, CS> &CSMap)
@@ -75,25 +94,40 @@ int AddToCsMap(CS &st, map<string, CS> &CSMap)
     {
         if (st.name == it.first)
         {
-            cout << endl
-                 << "CS with such a name already exists" << endl;
-            return 0;
+            do
+            {
+                cin.clear();
+                cin.ignore(256, '\n');
+                cout << "Tube with such a name already exists, create different name: ";
+                getline(cin, st.name);
+            } while (st.name == it.first);
         }
     }
     CSMap.insert(make_pair(st.name, st));
     return 0;
 }
 
-void EditPipeMap(map<int, Pipe> &PipeMap)
+void EditPipeMap(map<string, Pipe> &PipeMap)
 {
-    int i;
+    if (PipeMap.empty() == 1)
+    {
+        cout << endl
+             << "There are no objects to edit" << endl;
+        return;
+    }
+
+    string name;
     cout << "Enter name of the tube to change: ";
-    cin >> i;
-    Pipe p = PipeMap[i];
+    cin.clear();
+    cin.ignore(256, '\n');
+    getline(cin, name);
+    Pipe p = PipeMap[name];
 
     if (p.length == 0)
     {
-        cout << "There are no pipes with such a name, pleaese create a new pipe." << endl;
+        cout << endl
+             << "There are no pipes with such a name, pleaese create a new pipe." << endl;
+        PipeMap.erase(name);
         return;
     }
 
@@ -101,26 +135,39 @@ void EditPipeMap(map<int, Pipe> &PipeMap)
     GetCorrectStatus(p);
     if (old_status == p.status)
     {
-        cout << "Nothing was changed" << endl;
+        cout << endl
+             << "Nothing was changed" << endl;
     }
     else
     {
-        cout << "Changes were applied!" << endl;
+        cout << endl
+             << "Changes were applied!" << endl;
     }
 
-    PipeMap[i] = p;
+    PipeMap[name] = p;
 }
 
 void EditCSMap(map<string, CS> &CSMap)
 {
+    if (CSMap.empty() == 1)
+    {
+        cout << endl
+             << "There are no objects to edit" << endl;
+        return;
+    }
+
     string name;
     cout << "Enter name of the CS to change: ";
-    cin >> name;
+    cin.clear();
+    cin.ignore(256, '\n');
+    getline(cin, name);
     CS st = CSMap[name];
 
     if (st.workshops == 0)
     {
-        cout << "There are no CS, pleaese create a new CS." << endl;
+        cout << endl
+             << "There are no CS with such name, pleaese create a new one." << endl;
+        CSMap.erase(name);
         return;
     }
 
@@ -129,12 +176,14 @@ void EditCSMap(map<string, CS> &CSMap)
     GetCorrectActWorkshops(st);
     if (old_active_workshops == st.active_workshops)
     {
-        cout << "Nothing was changed" << endl;
+        cout << endl
+             << "Nothing was changed" << endl;
     }
     else
     {
         st.efficiency = (float)st.active_workshops / st.workshops * 100;
-        cout << "Changes were applied!" << endl;
+        cout << endl
+             << "Changes were applied!" << endl;
     }
 
     CSMap[name] = st;
@@ -202,63 +251,71 @@ ostream &operator<<(ostream &out, const map<string, CS> &CSMap)
     return out;
 }
 
-ostream &operator<<(ostream &out, const map<int, Pipe> &PipeMap)
+ostream &operator<<(ostream &out, const map<string, Pipe> &PipeMap)
 {
-    if (PipeMap.find(1) != PipeMap.end())
+    for (const auto &it : PipeMap)
     {
-        int k = 1;
-        for (const auto &it : PipeMap)
-        {
-            out << "Pipe #" << k << endl;
-            out << it.second << endl;
-            k++;
-        }
+        out << "Pipe #" << it.first << endl;
+        out << it.second << endl;
     }
     return out;
 }
 
-void ViewObjects(const Pipe &p, const CS &st)
+void DeleteTube(map<string, Pipe> &PipeMap)
 {
-    if (p.length != 0)
+    if (PipeMap.empty() == 1)
     {
-        cout << p;
+        cout
+            << "\nThere are no objects to delete\n";
+        return;
     }
-    if (st.workshops != 0 && p.length != 0)
+    string name;
+    cout << PipeMap;
+    cout << "Enter the name of the tube to be deleted: ";
+    cin.clear();
+    cin.ignore(256, '\n');
+    getline(cin, name);
+    Pipe p = PipeMap[name];
+
+    if (p.length == 0)
     {
-        cout << "\n";
+        cout << endl
+             << "There are no pipes with such a name, pleaese create a new pipe." << endl;
+        PipeMap.erase(name);
+        return;
     }
-    if (st.workshops != 0)
-    {
-        cout << st;
-    }
-    if (p.length == 0 && st.workshops == 0)
-    {
-        cout << "Nothing to view, please create new objects. " << endl;
-    }
+
+    PipeMap.erase(name);
+    cout << "\nTube was successfully deleted!\n";
 }
 
-CS EditCS(CS &station)
+void DeleteCS(map<string, CS> &CSMap)
 {
-    if (station.workshops == 0)
+    if (CSMap.empty() == 1)
     {
-        cout << "There are no CS, pleaese create a new CS." << endl;
-        return station;
+        cout
+            << "\nThere are no objects to delete\n";
+        return;
     }
 
-    int old_active_workshops = station.active_workshops;
+    string name;
+    cout << CSMap;
+    cout << "Enter name of the CS to be deleted: ";
+    cin.clear();
+    cin.ignore(256, '\n');
+    getline(cin, name);
+    CS st = CSMap[name];
 
-    GetCorrectActWorkshops(station);
-    if (old_active_workshops == station.active_workshops)
+    if (st.workshops == 0)
     {
-        cout << "Nothing was changed" << endl;
-    }
-    else
-    {
-        station.efficiency = (float)station.active_workshops / station.workshops * 100;
-        cout << "Changes were applied!" << endl;
+        cout << endl
+             << "There are no CS with such name." << endl;
+        CSMap.erase(name);
+        return;
     }
 
-    return station;
+    CSMap.erase(name);
+    cout << "\nCS was successfully deleted!\n";
 }
 
 int SaveFile(const Pipe &p, const CS &s)
@@ -366,8 +423,10 @@ void PrintMenu()
          << "3. View all objects" << endl
          << "4. Edit pipe" << endl
          << "5. Edit CS" << endl
-         << "6. Save to the file" << endl
-         << "7. Load from the file" << endl
+         << "6. Delete Tube" << endl
+         << "7. Delete CS" << endl
+         << "8. Save to the file" << endl
+         << "9. Load from the file" << endl
          << "0. Exit" << endl
          << "Choose action: ";
 }
@@ -376,14 +435,14 @@ int main()
 {
     Pipe p = {};
     CS st = {};
-    map<int, Pipe> PipeMap;
+    map<string, Pipe> PipeMap;
     map<string, CS> CSMap;
 
     while (1)
     {
         cout << "\n";
         PrintMenu();
-        switch (GetCorrectNumber(0, 7))
+        switch (GetCorrectNumber(0, 9))
         {
         case 1:
         {
@@ -399,6 +458,7 @@ int main()
         }
         case 3:
         {
+            GetCorrectObjectsView(PipeMap, CSMap);
             cout << PipeMap;
             cout << CSMap;
             break;
@@ -415,10 +475,20 @@ int main()
         }
         case 6:
         {
-            SaveFile(p, st);
+            DeleteTube(PipeMap);
             break;
         }
         case 7:
+        {
+            DeleteCS(CSMap);
+            break;
+        }
+        case 8:
+        {
+            SaveFile(p, st);
+            break;
+        }
+        case 9:
         {
             p = LoadPipe();
             st = LoadCS();
